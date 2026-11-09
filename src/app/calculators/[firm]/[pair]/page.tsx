@@ -151,8 +151,8 @@ export default async function PropPairCalculatorPage({ params }: PageProps) {
           </p>
         </header>
 
-        {/* Top Leaderboard AdSense Unit */}
-        <AdSlot slotId="top-leaderboard" className="min-h-[90px]" />
+        {/* Top MyBid Banner Ad */}
+        <AdSlot slotId="top-leaderboard" bannerId="2031283" className="min-h-[90px]" />
 
         {/* Interactive Client Calculator + Side Ad Unit */}
         <RiskCalculator
@@ -470,8 +470,8 @@ export default async function PropPairCalculatorPage({ params }: PageProps) {
           </section>
         </article>
 
-        {/* Bottom AdSense */}
-        <AdSlot slotId="bottom-leaderboard" className="min-h-[90px]" />
+        {/* Bottom MyBid Banner Ad */}
+        <AdSlot slotId="bottom-leaderboard" bannerId="2031285" className="min-h-[90px]" />
       </div>
     </main>
   );

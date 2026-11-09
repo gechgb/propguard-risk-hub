@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AdSlot from "@/components/AdSlot";
 import {
   Shield,
   Calculator,
@@ -171,6 +172,11 @@ export default function HomePage() {
             >
               How It Works
             </Link>
+          </div>
+
+          {/* Top MyBid Ad Banner */}
+          <div className="mt-12 max-w-4xl mx-auto">
+            <AdSlot slotId="top-leaderboard" bannerId="2031283" className="min-h-[90px]" />
           </div>
         </div>
       </section>

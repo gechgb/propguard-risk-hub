@@ -790,22 +790,19 @@ function AdSlotInline({
   className?: string;
 }) {
   const isDev = process.env.NODE_ENV === "development";
+  const bannerId = slotId === "sidebar-rectangle" ? "2031285" : "2031283";
+
   return (
     <div
-      className={`flex items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/30 text-slate-600 text-xs ${className}`}
+      className={`flex items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-xs overflow-hidden ${className}`}
       data-ad-slot={slotId}
+      aria-label="Advertisement"
     >
-      {isDev ? (
-        <span className="select-none">Ad Slot: {slotId}</span>
-      ) : (
-        <ins
-          className="adsbygoogle"
-          style={{ display: "block", width: "100%", height: "100%" }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-          data-ad-slot={slotId}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
+      <div data-banner-id={bannerId} className="w-full flex justify-center" />
+      {isDev && (
+        <span className="select-none text-[11px] font-mono text-emerald-500/70 py-2">
+          MyBid Banner #{bannerId}
+        </span>
       )}
     </div>
   );

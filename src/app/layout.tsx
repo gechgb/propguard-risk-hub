@@ -32,6 +32,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* MyBid Ad Network Script */}
+        <script async src="https://js.mbidadm.com/static/scripts.js" />
+      </head>
       <body
         className={`${inter.variable} font-sans antialiased bg-slate-950 text-slate-100`}
       >

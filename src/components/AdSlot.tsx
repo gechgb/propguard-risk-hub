@@ -1,47 +1,43 @@
 "use client";
 
 interface AdSlotProps {
-  slotId: string;
+  slotId?: string;
+  bannerId?: string;
   className?: string;
 }
 
-export default function AdSlot({ slotId, className = "" }: AdSlotProps) {
+const DEFAULT_BANNER_MAP: Record<string, string> = {
+  "top-leaderboard": "2031283",
+  "sidebar-rectangle": "2031285",
+  "bottom-leaderboard": "2031285",
+};
+
+export default function AdSlot({
+  slotId = "top-leaderboard",
+  bannerId,
+  className = "",
+}: AdSlotProps) {
   const isDev = process.env.NODE_ENV === "development";
+  const resolvedBannerId = bannerId || DEFAULT_BANNER_MAP[slotId] || "2031283";
 
   return (
     <div
-      className={`flex items-center justify-center rounded-xl border border-dashed border-slate-700 bg-slate-900/30 text-slate-600 text-xs overflow-hidden ${className}`}
+      className={`flex items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 text-slate-500 text-xs overflow-hidden ${className}`}
       data-ad-slot={slotId}
-      aria-hidden="true"
+      aria-label="Advertisement"
     >
-      {isDev ? (
-        <div className="flex flex-col items-center gap-1 select-none py-4">
-          <svg
-            className="w-6 h-6 text-slate-700"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M2.25 7.125C2.25 6.504 2.754 6 3.375 6h6c.621 0 1.125.504 1.125 1.125v3.75c0 .621-.504 1.125-1.125 1.125h-6a1.125 1.125 0 0 1-1.125-1.125v-3.75ZM14.25 8.625c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-8.25ZM3.75 16.125c0-.621.504-1.125 1.125-1.125h5.25c.621 0 1.125.504 1.125 1.125v2.25c0 .621-.504 1.125-1.125 1.125h-5.25a1.125 1.125 0 0 1-1.125-1.125v-2.25Z"
-            />
-          </svg>
-          <span>Ad Slot: {slotId}</span>
+      {/* MyBid Banner Unit */}
+      <div data-banner-id={resolvedBannerId} className="w-full flex justify-center" />
+
+      {/* Development indicator */}
+      {isDev && (
+        <div className="flex flex-col items-center gap-1 select-none py-3 text-slate-600 pointer-events-none">
+          <span className="text-[11px] font-mono text-emerald-500/70">
+            MyBid Ad Banner #{resolvedBannerId}
+          </span>
+          <span className="text-[10px] text-slate-600">Slot: {slotId}</span>
         </div>
-      ) : (
-        <ins
-          className="adsbygoogle"
-          style={{ display: "block", width: "100%", height: "100%" }}
-          data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-          data-ad-slot={slotId}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
       )}
     </div>
   );
 }
-
