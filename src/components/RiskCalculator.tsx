@@ -350,6 +350,44 @@ export default function RiskCalculator({
                 className="w-full pl-7 pr-3 py-2 text-xs font-mono rounded-xl bg-slate-950/60 border border-slate-800/80 text-slate-200 placeholder-slate-600 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/20"
               />
             </div>
+
+            {/* Dynamic Drawdown Recovery Mode Card */}
+            {effectiveEquity < effectiveBalance && (
+              <div className="mt-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-amber-300 flex items-center gap-1.5">
+                    <TrendingDown className="w-3.5 h-3.5 text-amber-400" />
+                    Drawdown Recovery Analysis
+                  </span>
+                  <span className="font-mono text-amber-400 font-bold">
+                    -${(effectiveBalance - effectiveEquity).toLocaleString(undefined, { minimumFractionDigits: 2 })} (
+                    {(((effectiveBalance - effectiveEquity) / effectiveBalance) * 100).toFixed(2)}% DD)
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                  <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800/80">
+                    <span className="text-[10px] text-slate-500 block">Daily Buffer Left</span>
+                    <span className="text-slate-200 font-semibold">${result.remainingDailyBufferUsd.toFixed(2)}</span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800/80">
+                    <span className="text-[10px] text-slate-500 block">1:2 RR to Breakeven</span>
+                    <span className="text-emerald-400 font-semibold">
+                      {result.targetRiskUsd > 0
+                        ? `${Math.ceil((effectiveBalance - effectiveEquity) / (result.targetRiskUsd * 2))} wins`
+                        : "—"}
+                    </span>
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-950/70 border border-slate-800/80">
+                    <span className="text-[10px] text-slate-500 block">1:3 RR to Breakeven</span>
+                    <span className="text-emerald-400 font-semibold">
+                      {result.targetRiskUsd > 0
+                        ? `${Math.ceil((effectiveBalance - effectiveEquity) / (result.targetRiskUsd * 3))} wins`
+                        : "—"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
