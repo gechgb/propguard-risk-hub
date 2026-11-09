@@ -13,3 +13,4 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: "https://propguard.app/sitemap.xml",
   };
 }
+

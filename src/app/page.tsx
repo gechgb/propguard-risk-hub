@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdSlot from "@/components/AdSlot";
+import seoMatrix from "@/data/prop-seo-matrix.json";
 import {
   Shield,
   Calculator,
@@ -9,340 +10,219 @@ import {
   Zap,
   Target,
   Activity,
+  Scale,
+  Sparkles,
+  Lock,
+  Cpu,
+  Layers,
 } from "lucide-react";
+import type { SeoMatrix } from "@/lib/types";
 
-const firms = [
-  {
-    name: "FTMO",
-    slug: "ftmo",
-    maxDaily: "5%",
-    maxTotal: "10%",
-    accent: "emerald",
-  },
-  {
-    name: "FundedNext",
-    slug: "fundednext",
-    maxDaily: "5%",
-    maxTotal: "10%",
-    accent: "amber",
-  },
-  {
-    name: "The5ers",
-    slug: "the5ers",
-    maxDaily: "4%",
-    maxTotal: "6%",
-    accent: "sky",
-  },
-  {
-    name: "Alpha Capital Group",
-    slug: "alpha-capital",
-    maxDaily: "5%",
-    maxTotal: "10%",
-    accent: "rose",
-  },
-];
-
-const instruments = [
-  { name: "XAUUSD", slug: "xauusd", label: "Gold" },
-  { name: "EURUSD", slug: "eurusd", label: "Euro/Dollar" },
-  { name: "NAS100", slug: "nas100", label: "Nasdaq 100" },
-  { name: "GBPJPY", slug: "gbpjpy", label: "Pound/Yen" },
-];
-
-const accentMap: Record<string, { border: string; bg: string; text: string; badge: string }> = {
-  emerald: {
-    border: "border-emerald-500/30",
-    bg: "bg-emerald-500/10",
-    text: "text-emerald-400",
-    badge: "bg-emerald-500/20 text-emerald-300",
-  },
-  amber: {
-    border: "border-amber-500/30",
-    bg: "bg-amber-500/10",
-    text: "text-amber-400",
-    badge: "bg-amber-500/20 text-amber-300",
-  },
-  sky: {
-    border: "border-sky-500/30",
-    bg: "bg-sky-500/10",
-    text: "text-sky-400",
-    badge: "bg-sky-500/20 text-sky-300",
-  },
-  rose: {
-    border: "border-rose-500/30",
-    bg: "bg-rose-500/10",
-    text: "text-rose-400",
-    badge: "bg-rose-500/20 text-rose-300",
-  },
-};
-
-const features = [
-  {
-    icon: Calculator,
-    title: "Real-time Lot Sizing",
-    description:
-      "Instant position size calculations calibrated to each firm's specific contract specs, leverage, and margin requirements.",
-  },
-  {
-    icon: TrendingDown,
-    title: "Drawdown Survival Tracking",
-    description:
-      "Know exactly how much room you have before breaching daily or max drawdown — down to the pip.",
-  },
-  {
-    icon: Activity,
-    title: "Spread & Commission Buffers",
-    description:
-      "Built-in cost modeling so your true risk accounts for spreads, commissions, and slippage on every trade.",
-  },
-  {
-    icon: Zap,
-    title: "Zero-cost Hosting",
-    description:
-      "Runs entirely in your browser. No subscriptions, no data collection, no server costs. Free forever.",
-  },
-];
-
-const steps = [
-  {
-    number: "01",
-    title: "Select Your Firm",
-    description:
-      "Choose your prop firm and account size. We load the exact drawdown rules, leverage limits, and contract specifications.",
-  },
-  {
-    number: "02",
-    title: "Pick Your Instrument",
-    description:
-      "Select the pair or index you want to trade. Each instrument has calibrated pip values, tick sizes, and margin rates.",
-  },
-  {
-    number: "03",
-    title: "Get Your Safe Lot Size",
-    description:
-      "Enter your stop loss in pips and see your maximum safe position size, dollar risk, and drawdown impact instantly.",
-  },
-];
+const data = seoMatrix as SeoMatrix;
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       {/* ── Hero Section ────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* Gradient glow */}
+      <section className="relative overflow-hidden pt-20 pb-16 sm:pt-28 sm:pb-24 border-b border-slate-800/60">
+        {/* Futuristic Background Glow & Gradients */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-48 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-500/[0.07] blur-[120px]" />
-          <div className="absolute -top-24 left-1/3 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-amber-500/[0.05] blur-[100px]" />
+          <div className="absolute -top-40 left-1/2 h-[550px] w-[1000px] -translate-x-1/2 rounded-full bg-emerald-500/[0.08] blur-[140px]" />
+          <div className="absolute top-20 right-1/4 h-[350px] w-[500px] rounded-full bg-amber-500/[0.04] blur-[120px]" />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-6 pb-20 pt-28 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-sm text-emerald-400">
-            <Shield className="h-4 w-4" />
-            Prop Firm Risk Management
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 text-center space-y-6">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-400 backdrop-blur-md shadow-lg shadow-emerald-500/5">
+            <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Institutional Prop-Firm Risk Engine</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-300">2026 Updated Rules</span>
           </div>
 
-          <h1 className="mb-4 text-5xl font-extrabold tracking-tight sm:text-6xl lg:text-7xl">
-            <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-amber-400 bg-clip-text text-transparent">
-              PropGuard
-            </span>{" "}
-            Risk Hub
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]">
+            Zero-Error Sizing for{" "}
+            <span className="bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 bg-clip-text text-transparent">
+              Funded Traders
+            </span>
           </h1>
 
-          <p className="mx-auto mb-3 max-w-2xl text-xl font-medium text-slate-300 sm:text-2xl">
-            Zero-error position sizing for prop firm traders
+          {/* Subtitle */}
+          <p className="mx-auto max-w-2xl text-base sm:text-xl text-slate-300 leading-relaxed font-normal">
+            Calculate exact lot sizes that factor in your prop firm&apos;s daily drawdown cap, live spread, and round-turn commissions. Floor lot sizes to prevent accidental breaches.
           </p>
 
-          <p className="mx-auto mb-10 max-w-xl text-base text-slate-400">
-            Stop guessing your lot sizes. PropGuard calculates the exact safe
-            position for every firm, every instrument — so you never blow a
-            drawdown limit again.
-          </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          {/* CTAs */}
+          <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <Link
               href="#calculators"
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:bg-emerald-500"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3.5 text-sm font-semibold text-slate-950 shadow-xl shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-400 transition-all cursor-pointer"
             >
-              Open Calculators
+              <Calculator className="h-4 w-4" />
+              <span>Launch Calculator</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="#how-it-works"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/60 px-6 py-3 font-semibold text-slate-300 transition hover:border-slate-600 hover:text-white"
+              href="/compare"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-900/60 px-6 py-3.5 text-sm font-semibold text-slate-200 hover:border-slate-600 hover:bg-slate-800/60 transition-all backdrop-blur-md"
             >
-              How It Works
+              <Scale className="h-4 w-4 text-emerald-400" />
+              <span>Compare Prop Firms</span>
             </Link>
           </div>
 
-          {/* Top MyBid Ad Banner */}
-          <div className="mt-12 max-w-4xl mx-auto">
+          {/* Live Quick Stats Strip */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto pt-8">
+            <div className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400">0.01 Lot</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Strict Risk Flooring</div>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-amber-400">40+ Pairs</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Static Pre-built Pages</div>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-sky-400">0.00 CLS</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Zero Layout Shift</div>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-900/40 border border-slate-800/80 backdrop-blur-md">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400">100% Free</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">No Login Required</div>
+            </div>
+          </div>
+
+          {/* MyBid Ad Banner Unit */}
+          <div className="pt-4 max-w-4xl mx-auto">
             <AdSlot slotId="top-leaderboard" bannerId="2031283" className="min-h-[90px]" />
           </div>
         </div>
       </section>
 
-      {/* ── Calculator Grid ─────────────────────────────────────────── */}
-      <section id="calculators" className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-10 text-center">
-          <h2 className="mb-2 text-3xl font-bold tracking-tight">
-            Choose Your Calculator
+      {/* ── Calculator Explorer Grid ───────────────────────────────── */}
+      <section id="calculators" className="mx-auto max-w-6xl px-4 sm:px-6 py-20 space-y-12">
+        <div className="text-center space-y-3 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 border border-slate-800 text-slate-400">
+            <Layers className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Select Your Evaluation Account</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Choose Firm &amp; Instrument
           </h2>
-          <p className="text-slate-400">
-            Select a firm &times; instrument combination to get started
+          <p className="text-slate-400 text-sm">
+            Instant zero-latency position sizing calibrated to each firm&apos;s daily loss rules and contract specifications.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {firms.map((firm) => {
-            const a = accentMap[firm.accent];
-            return instruments.map((inst) => (
-              <Link
-                key={`${firm.slug}-${inst.slug}`}
-                href={`/calculators/${firm.slug}/${inst.slug}`}
-                className={`group relative rounded-xl border ${a.border} bg-slate-900/70 p-5 transition hover:border-opacity-60 hover:bg-slate-800/80`}
-              >
-                <div className="mb-3 flex items-center justify-between">
-                  <span
-                    className={`rounded-md px-2 py-0.5 text-xs font-semibold ${a.badge}`}
-                  >
-                    {firm.name}
+        {/* Firm Cards */}
+        <div className="space-y-8">
+          {data.propFirms.map((firm) => (
+            <div
+              key={firm.slug}
+              className="rounded-2xl border border-slate-800/80 bg-gradient-to-b from-slate-900/70 to-slate-950 p-6 space-y-4 shadow-xl"
+            >
+              {/* Firm Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800/60">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="text-lg font-bold text-white">{firm.name}</h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      {firm.programName}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Model: <strong className="text-slate-300">{firm.drawdownType}</strong> • Reset:{" "}
+                    <strong className="text-slate-300">{firm.dailyResetRule}</strong>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 font-mono text-xs">
+                  <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400">
+                    Daily Cap: {firm.dailyDrawdownPct}%
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-600 transition group-hover:translate-x-0.5 group-hover:text-slate-400" />
-                </div>
-                <p className="text-lg font-bold text-white">{inst.name}</p>
-                <p className="text-sm text-slate-500">{inst.label}</p>
-              </Link>
-            ));
-          })}
-        </div>
-      </section>
-
-      {/* ── Quick Links by Firm ─────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-10 text-center">
-          <h2 className="mb-2 text-3xl font-bold tracking-tight">
-            Quick Links by Firm
-          </h2>
-          <p className="text-slate-400">
-            Jump straight to your prop firm&apos;s calculators
-          </p>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          {firms.map((firm) => {
-            const a = accentMap[firm.accent];
-            return (
-              <div
-                key={firm.slug}
-                className={`rounded-xl border ${a.border} bg-slate-900/60 p-6`}
-              >
-                <div className="mb-4 flex items-center gap-3">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-lg ${a.bg}`}
-                  >
-                    <BarChart3 className={`h-5 w-5 ${a.text}`} />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">
-                      {firm.name}
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      Daily&nbsp;{firm.maxDaily} &middot; Max&nbsp;
-                      {firm.maxTotal} drawdown
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {instruments.map((inst) => (
-                    <Link
-                      key={inst.slug}
-                      href={`/calculators/${firm.slug}/${inst.slug}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-800/50 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:border-slate-600 hover:text-white"
-                    >
-                      <Target className="h-3.5 w-3.5 text-slate-500" />
-                      {inst.name}
-                    </Link>
-                  ))}
+                  <span className="px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400">
+                    Max DD: {firm.maxDrawdownPct}%
+                  </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* ── How It Works ────────────────────────────────────────────── */}
-      <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-12 text-center">
-          <h2 className="mb-2 text-3xl font-bold tracking-tight">
-            How It Works
-          </h2>
-          <p className="text-slate-400">
-            Three steps to risk-perfect position sizing
-          </p>
-        </div>
-
-        <div className="grid gap-8 md:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.number} className="relative">
-              <span className="mb-4 block text-5xl font-black text-emerald-500/20">
-                {step.number}
-              </span>
-              <h3 className="mb-2 text-xl font-bold text-white">
-                {step.title}
-              </h3>
-              <p className="text-sm leading-relaxed text-slate-400">
-                {step.description}
-              </p>
+              {/* Instrument Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {data.instruments.map((inst) => (
+                  <Link
+                    key={`${firm.slug}-${inst.slug}`}
+                    href={`/calculators/${firm.slug}/${inst.slug}`}
+                    className="group p-3.5 rounded-xl border border-slate-800/90 bg-slate-950/60 hover:bg-slate-900 hover:border-emerald-500/40 transition-all duration-150 flex flex-col justify-between space-y-2"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-white group-hover:text-emerald-400 transition-colors">
+                        {inst.symbol}
+                      </span>
+                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400">
+                        {inst.assetClass}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span className="truncate max-w-[100px]">{inst.displayName.split(" ")[0]}</span>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-600 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Features ────────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="mb-12 text-center">
-          <h2 className="mb-2 text-3xl font-bold tracking-tight">
-            Built for Serious Traders
-          </h2>
-          <p className="text-slate-400">
-            Every detail designed to keep your funded account alive
-          </p>
-        </div>
+      {/* ── Features Grid ──────────────────────────────────────────── */}
+      <section className="border-t border-slate-800/60 bg-slate-900/30 py-20 px-4 sm:px-6">
+        <div className="mx-auto max-w-6xl space-y-12">
+          <div className="text-center space-y-3 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-extrabold tracking-tight text-white">
+              Built for Quantitative Risk Preservation
+            </h2>
+            <p className="text-slate-400 text-sm">
+              Standard forex calculators ignore prop-firm specific constraints. PropGuard prevents the 3 most common breach causes.
+            </p>
+          </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          {features.map((feat) => {
-            const Icon = feat.icon;
-            return (
-              <div
-                key={feat.title}
-                className="rounded-xl border border-slate-800 bg-slate-900/50 p-6 transition hover:border-slate-700"
-              >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-500/10">
-                  <Icon className="h-5 w-5 text-emerald-400" />
-                </div>
-                <h3 className="mb-1 text-lg font-bold text-white">
-                  {feat.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-slate-400">
-                  {feat.description}
-                </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl border border-slate-800/80 bg-slate-950/70 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                <Target className="w-5 h-5" />
               </div>
-            );
-          })}
+              <h3 className="font-bold text-white text-base">Mathematical Downward Flooring</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Standard rounding rules round 1.256 lots up to 1.26 lots, which overshoots your dollar risk budget. PropGuard floors every calculation to the nearest 0.01 micro lot so you never exceed your intended risk.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-slate-800/80 bg-slate-950/70 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                <Activity className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-white text-base">Friction &amp; Cost Buffering</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Average spread and broker commissions are deducted from your allowable risk upfront. A 50-pip stop with 2 pips spread and $3/lot comm will not push your account into a daily breach.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-2xl border border-slate-800/80 bg-slate-950/70 space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+                <TrendingDown className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-white text-base">Consecutive Loss Survival Tracking</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Know before entering a trade exactly how many consecutive full losses will breach your daily cap. Yellow alerts trigger at &gt;30% buffer use, and red warnings at &gt;50%.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Footer ──────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-800/60 py-10 text-center text-sm text-slate-500">
-        <p className="mb-1">
-          <span className="font-semibold text-slate-400">PropGuard</span> Risk
-          Hub &mdash; free &amp; open-source
-        </p>
-        <p>
-          Not affiliated with any prop firm. Use at your own discretion.
-        </p>
-      </footer>
+      {/* Bottom Ad Banner */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <AdSlot slotId="bottom-leaderboard" bannerId="2031285" className="min-h-[90px]" />
+      </div>
     </div>
   );
 }

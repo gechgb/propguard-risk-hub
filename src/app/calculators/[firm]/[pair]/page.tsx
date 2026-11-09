@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChevronRight, Sparkles } from "lucide-react";
 import seoMatrix from "@/data/prop-seo-matrix.json";
 import { calculatePropRisk } from "@/lib/riskMath";
 import RiskCalculator from "@/components/RiskCalculator";
@@ -128,27 +130,67 @@ export default async function PropPairCalculatorPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
       />
 
-      <div className="max-w-5xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-6">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-slate-500 font-mono">
+          <Link href="/" className="hover:text-slate-300 transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+          <Link href="/compare" className="hover:text-slate-300 transition-colors">
+            Firms
+          </Link>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+          <span className="text-slate-400">{firm.name}</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
+          <span className="text-emerald-400 font-semibold">{pair.symbol}</span>
+        </nav>
+
         {/* Header */}
         <header className="space-y-3">
-          <span className="inline-block px-3 py-1 text-xs font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
-            {firm.programName} &bull; {pair.assetClass} Risk Engine
-          </span>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-            {firm.name} {pair.symbol} Position Size &amp; Drawdown Calculator
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+              <Sparkles className="w-3 h-3 text-emerald-400" />
+              {firm.programName} • {pair.assetClass} Risk Engine
+            </span>
+            <span className="text-xs font-mono text-slate-400 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800">
+              Reset: {firm.dailyResetRule}
+            </span>
+          </div>
+
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            {firm.name} {pair.symbol} Lot Size &amp; Drawdown Calculator
           </h1>
-          <p className="text-slate-400 max-w-3xl">
-            Calculate your exact {pair.displayName} lot size while factoring in{" "}
-            {firm.name}&apos;s{" "}
-            <strong className="text-slate-200">
-              {firm.dailyDrawdownPct}% daily drawdown
-            </strong>{" "}
-            and{" "}
-            <strong className="text-slate-200">
-              {firm.maxDrawdownPct}% maximum loss limit
-            </strong>
-            . Includes spread, commission, and consecutive-loss analysis.
+          <p className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed">
+            Calculate your exact {pair.displayName} lot size while factoring in {firm.name}&apos;s{" "}
+            <strong className="text-amber-400">{firm.dailyDrawdownPct}% daily loss cap</strong> and{" "}
+            <strong className="text-rose-400">{firm.maxDrawdownPct}% maximum loss floor</strong>. Includes live spread and round-turn commission buffers.
           </p>
+
+          {/* Quick Instrument Switcher Pills */}
+          <div className="pt-2">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+              <span className="text-slate-500 text-[11px] uppercase tracking-wider font-mono mr-1">
+                Pairs:
+              </span>
+              {data.instruments.map((i) => {
+                const isActive = i.slug === pair.slug;
+                return (
+                  <Link
+                    key={i.slug}
+                    href={`/calculators/${firm.slug}/${i.slug}`}
+                    className={`px-3 py-1 rounded-lg font-mono text-xs transition-all whitespace-nowrap border ${
+                      isActive
+                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 font-bold shadow-sm"
+                        : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700"
+                    }`}
+                  >
+                    {i.symbol}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </header>
 
         {/* Top MyBid Banner Ad */}
