@@ -12,7 +12,7 @@ export default function TermsOfServicePage() {
       <div className="max-w-3xl mx-auto prose prose-invert">
         <h1>Terms of Service</h1>
         <p className="text-sm text-slate-400">
-          Last updated: {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+          Last updated: November 2026
         </p>
 
         <p>

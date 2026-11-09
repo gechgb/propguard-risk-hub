@@ -31,13 +31,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="dark scroll-smooth" suppressHydrationWarning>
       <head>
         {/* MyBid Ad Network Script */}
         <script async src="https://js.mbidadm.com/static/scripts.js" />
       </head>
       <body
         className={`${inter.variable} font-sans antialiased bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-emerald-500/20 selection:text-emerald-300`}
+        suppressHydrationWarning
       >
         {/* Modern Bloomberg-Style Top Navigation */}
         <nav className="sticky top-0 z-50 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/70">
@@ -222,7 +223,7 @@ export default function RootLayout({
             </div>
 
             <div className="pt-6 border-t border-slate-800/60 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-slate-500">
-              <p>&copy; {new Date().getFullYear()} PropGuard Risk Hub. All rights reserved.</p>
+              <p>&copy; 2026 PropGuard Risk Hub. All rights reserved.</p>
               <p className="text-[11px] text-slate-500 text-center sm:text-right">
                 Trading futures, forex, and CFDs involves substantial risk of loss. Always verify calculations with your broker.
               </p>
