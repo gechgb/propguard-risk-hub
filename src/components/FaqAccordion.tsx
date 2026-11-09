@@ -43,3 +43,4 @@ export default function FaqAccordion({ items }: { items: FaqItem[] }) {
     </div>
   );
 }
+

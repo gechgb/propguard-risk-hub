@@ -92,3 +92,4 @@ export function calculatePropRisk(input: RiskInput): RiskOutput {
     riskStatus,
   };
 }
+

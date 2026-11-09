@@ -44,3 +44,4 @@ export default function AdSlot({ slotId, className = "" }: AdSlotProps) {
     </div>
   );
 }
+

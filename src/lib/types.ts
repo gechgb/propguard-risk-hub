@@ -33,3 +33,4 @@ export interface SeoMatrix {
   propFirms: PropFirm[];
   instruments: Instrument[];
 }
+
