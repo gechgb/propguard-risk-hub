@@ -55,6 +55,20 @@
       "accountSizes": [10000, 25000, 50000, 100000, 200000],
       "defaultCommissionPerLotUsd": 0.0,
       "ruleNotes": "Alpha Capital Group charges zero commission on standard accounts but enforces a stricter 4% daily drawdown and 8% maximum drawdown ceiling."
+    },
+    {
+      "slug": "topstep",
+      "name": "Topstep",
+      "programName": "Trading Combine",
+      "dailyDrawdownPct": 2.0,
+      "maxDrawdownPct": 4.0,
+      "drawdownType": "Trailing Max Drawdown (End-of-Day)",
+      "dailyResetRule": "16:00 CT (Market Close Rollover)",
+      "profitTargetStep1Pct": 6.0,
+      "profitTargetStep2Pct": 0.0,
+      "accountSizes": [50000, 100000, 150000],
+      "defaultCommissionPerLotUsd": 3.7,
+      "ruleNotes": "Topstep uses an End-of-Day Trailing Maximum Loss limit that ratchets upwards with positive account balance until it reaches the starting balance."
     }
   ],
   "instruments": [
@@ -65,7 +79,7 @@
       "assetClass": "Metals",
       "contractSize": 100,
       "unitLabel": "Troy Ounces",
-      "pipSize": 0.10,
+      "pipSize": 0.1,
       "pointSize": 0.01,
       "pipValuePerStandardLotUsd": 10.0,
       "pointValuePerStandardLotUsd": 1.0,
@@ -89,6 +103,36 @@
       "seoDescription": "One standard lot of EURUSD is 100,000 currency units. Every 1-pip movement (0.0001) equals $10.00 per standard lot, $1.00 per mini lot (0.10), and $0.10 per micro lot (0.01)."
     },
     {
+      "slug": "gbpusd",
+      "symbol": "GBPUSD",
+      "displayName": "British Pound vs US Dollar (GBP/USD)",
+      "assetClass": "Forex Major",
+      "contractSize": 100000,
+      "unitLabel": "GBP Units",
+      "pipSize": 0.0001,
+      "pointSize": 0.00001,
+      "pipValuePerStandardLotUsd": 10.0,
+      "pointValuePerStandardLotUsd": 1.0,
+      "defaultStopLossPips": 25,
+      "typicalSpreadPips": 0.8,
+      "seoDescription": "One standard lot of GBPUSD is 100,000 GBP. With USD as quote currency, 1 pip equals exactly $10.00 per standard lot, making calculations straightforward and highly liquid."
+    },
+    {
+      "slug": "usdjpy",
+      "symbol": "USDJPY",
+      "displayName": "US Dollar vs Japanese Yen (USD/JPY)",
+      "assetClass": "Forex Major",
+      "contractSize": 100000,
+      "unitLabel": "USD Units",
+      "pipSize": 0.01,
+      "pointSize": 0.001,
+      "pipValuePerStandardLotUsd": 6.67,
+      "pointValuePerStandardLotUsd": 0.667,
+      "defaultStopLossPips": 30,
+      "typicalSpreadPips": 0.6,
+      "seoDescription": "Because USDJPY is quoted in JPY, 1 pip (0.01) equals 1,000 JPY per standard lot. Converted back to USD at an exchange rate of ~150 JPY/USD, 1 pip equals approximately $6.67 per standard lot."
+    },
+    {
       "slug": "nas100",
       "symbol": "NAS100",
       "displayName": "Nasdaq 100 Index CFD (US100 / NAS100)",
@@ -102,6 +146,36 @@
       "defaultStopLossPips": 40,
       "typicalSpreadPips": 1.2,
       "seoDescription": "Most CFD prop firms define 1 standard lot of NAS100 (US100) with a contract size of 1 or 10. Always verify whether a 1-point index move equals $1.00 or $10.00 on your broker's MT5 specification tab."
+    },
+    {
+      "slug": "us30",
+      "symbol": "US30",
+      "displayName": "Dow Jones Industrial Average CFD (US30 / DJ30)",
+      "assetClass": "Indices",
+      "contractSize": 1,
+      "unitLabel": "Index Contract",
+      "pipSize": 1.0,
+      "pointSize": 0.1,
+      "pipValuePerStandardLotUsd": 1.0,
+      "pointValuePerStandardLotUsd": 0.1,
+      "defaultStopLossPips": 50,
+      "typicalSpreadPips": 2.0,
+      "seoDescription": "US30 (Dow Jones CFD) standard contract sizing typically values a 1.0 point move at $1.00 per standard lot. During volatile New York openings, spreads can briefly widen to 3-5 points."
+    },
+    {
+      "slug": "btcusd",
+      "symbol": "BTCUSD",
+      "displayName": "Bitcoin vs US Dollar (BTC/USD Crypto)",
+      "assetClass": "Crypto",
+      "contractSize": 1,
+      "unitLabel": "BTC Units",
+      "pipSize": 1.0,
+      "pointSize": 0.01,
+      "pipValuePerStandardLotUsd": 1.0,
+      "pointValuePerStandardLotUsd": 0.01,
+      "defaultStopLossPips": 500,
+      "typicalSpreadPips": 25.0,
+      "seoDescription": "BTCUSD CFD contract size equals 1 Bitcoin. A $1.00 move equals $1.00 per standard lot. Due to weekend volatility and wide spreads, prop traders must account for execution slippage."
     },
     {
       "slug": "gbpjpy",
@@ -120,4 +194,3 @@
     }
   ]
 }
-

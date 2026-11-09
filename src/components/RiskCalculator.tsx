@@ -13,6 +13,9 @@ import {
   Activity,
   Layers,
   Info,
+  Copy,
+  Check,
+  Target,
 } from "lucide-react";
 import { calculatePropRisk, type RiskOutput } from "@/lib/riskMath";
 import type { PropFirm, Instrument, SeoMatrix } from "@/lib/types";
@@ -26,6 +29,8 @@ interface RiskCalculatorProps {
 const RISK_PRESETS = [0.25, 0.5, 1.0, 2.0];
 const SL_MODES = ["Pips", "Points", "Price Change"] as const;
 type SLMode = (typeof SL_MODES)[number];
+type RiskMode = "percentage" | "fixed";
+const RR_RATIOS = [1, 1.5, 2, 3];
 
 function useLocalStorage<T>(key: string, fallback: T): [T, (v: T) => void] {
   const [value, setValue] = useState<T>(fallback);
@@ -58,11 +63,21 @@ export default function RiskCalculator({
   const [customBalance, setCustomBalance] = useState("");
   const [useCustomBalance, setUseCustomBalance] = useState(false);
   const [equity, setEquity] = useState("");
+
+  // Risk Mode: Percentage vs Fixed $
+  const [riskMode, setRiskMode] = useState<RiskMode>("percentage");
   const [riskPct, setRiskPct] = useLocalStorage("pg_risk", 0.5);
-  const [customRisk, setCustomRisk] = useState("");
+  const [customRiskPct, setCustomRiskPct] = useState("");
+  const [fixedRiskUsd, setFixedRiskUsd] = useState(500);
+
+  // Stop Loss & Buffer
   const [slMode, setSLMode] = useState<SLMode>("Pips");
   const [slValue, setSLValue] = useLocalStorage("pg_sl", 0);
   const [spreadBuffer, setSpreadBuffer] = useState("");
+
+  // Risk to Reward target
+  const [riskReward, setRiskReward] = useState(2);
+  const [copied, setCopied] = useState(false);
 
   const firm = useMemo(
     () => allData.propFirms.find((f) => f.slug === firmSlug) ?? defaultFirm,
@@ -84,13 +99,14 @@ export default function RiskCalculator({
     : accountSize;
   const effectiveEquity =
     equity !== "" ? Number(equity) || effectiveBalance : effectiveBalance;
-  const effectiveRisk = customRisk !== "" ? Number(customRisk) || 0.5 : riskPct;
+
+  const effectiveRiskPct =
+    customRiskPct !== "" ? Number(customRiskPct) || 0.5 : riskPct;
 
   // Convert SL value to pips based on mode
   const slInPips = useMemo(() => {
     if (slMode === "Pips") return slValue;
     if (slMode === "Points") return slValue * (pair.pointSize / pair.pipSize);
-    // Price Change mode: convert dollar amount to pips
     return pair.pipSize > 0 ? slValue / pair.pipSize : slValue;
   }, [slValue, slMode, pair]);
 
@@ -99,7 +115,8 @@ export default function RiskCalculator({
       calculatePropRisk({
         accountBalance: effectiveBalance,
         currentEquity: effectiveEquity,
-        riskPercentage: effectiveRisk,
+        riskPercentage: riskMode === "percentage" ? effectiveRiskPct : undefined,
+        fixedRiskUsd: riskMode === "fixed" ? fixedRiskUsd : undefined,
         stopLossPips: slInPips,
         spreadPips: Number(spreadBuffer) || pair.typicalSpreadPips,
         pipValuePerLotUsd: pair.pipValuePerStandardLotUsd,
@@ -110,13 +127,37 @@ export default function RiskCalculator({
     [
       effectiveBalance,
       effectiveEquity,
-      effectiveRisk,
+      riskMode,
+      effectiveRiskPct,
+      fixedRiskUsd,
       slInPips,
       spreadBuffer,
       pair,
       firm,
     ]
   );
+
+  // Projected TP profit
+  const projectedProfitUsd = result.actualStopLossUsd * riskReward;
+  const targetPhase1Usd = effectiveBalance * (firm.profitTargetStep1Pct / 100);
+
+  const handleCopySetup = () => {
+    const text = [
+      `PropGuard Risk Setup — ${firm.name} (${firm.programName})`,
+      `Instrument: ${pair.symbol} (${pair.displayName})`,
+      `Account Size: $${effectiveBalance.toLocaleString()}`,
+      `Risk: ${result.effectiveRiskPercentage.toFixed(2)}% ($${result.targetRiskUsd.toFixed(2)})`,
+      `Position Size: ${result.recommendedLots.toFixed(2)} Standard Lots (${result.miniLots.toFixed(1)} mini / ${result.microLots} micro)`,
+      `Stop Loss: ${slValue} ${slMode} | Spread Buffer: ${spreadBuffer} pips`,
+      `True Dollar Risk: $${result.totalRiskWithCostsUsd.toFixed(2)}`,
+      `Daily Drawdown Consumed: ${result.dailyDrawdownUsedPct.toFixed(1)}% (${result.consecutiveLossesToDailyBreach} full losses to breach)`,
+      `Risk Status: ${result.riskStatus}`,
+    ].join("\n");
+
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   const statusColor =
     result.riskStatus === "DANGER"
@@ -139,8 +180,8 @@ export default function RiskCalculator({
         {/* Firm & Pair Selectors */}
         <div className="grid sm:grid-cols-2 gap-4">
           <SelectField
-            label="Prop Firm"
-            icon={<Layers className="w-4 h-4" />}
+            label="Prop Firm & Program"
+            icon={<Layers className="w-4 h-4 text-emerald-400" />}
             value={firmSlug}
             onChange={(v) => setFirmSlug(v)}
             options={allData.propFirms.map((f) => ({
@@ -150,7 +191,7 @@ export default function RiskCalculator({
           />
           <SelectField
             label="Instrument"
-            icon={<BarChart3 className="w-4 h-4" />}
+            icon={<BarChart3 className="w-4 h-4 text-sky-400" />}
             value={pairSlug}
             onChange={(v) => setPairSlug(v)}
             options={allData.instruments.map((i) => ({
@@ -162,10 +203,16 @@ export default function RiskCalculator({
 
         {/* Account Balance */}
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <DollarSign className="w-4 h-4 text-emerald-400" />
-            Account Balance
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-emerald-400" />
+              Account Balance
+            </h3>
+            <span className="text-xs text-slate-500">
+              Drawdown Floor: ${((1 - firm.maxDrawdownPct / 100) * effectiveBalance).toLocaleString()}
+            </span>
+          </div>
+
           <div className="flex flex-wrap gap-2">
             {firm.accountSizes.map((size) => (
               <button
@@ -174,7 +221,7 @@ export default function RiskCalculator({
                   setAccountSize(size);
                   setUseCustomBalance(false);
                 }}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
+                className={`px-3 py-1.5 text-sm rounded-lg border font-medium transition-all ${
                   !useCustomBalance && accountSize === size
                     ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
                     : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
@@ -193,19 +240,19 @@ export default function RiskCalculator({
                   setUseCustomBalance(true);
                 }}
                 onFocus={() => setUseCustomBalance(true)}
-                className="w-28 px-3 py-1.5 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
+                className="w-32 px-3 py-1.5 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Current Equity */}
+          {/* Current Equity (Drawdown Buffer tracker) */}
           <div>
             <label className="text-xs text-slate-500 mb-1 block">
-              Current Equity (optional — leave blank if at starting balance)
+              Current Account Equity (optional — enter your live balance to check intraday drawdown remaining)
             </label>
             <input
               type="number"
-              placeholder={`$${effectiveBalance.toLocaleString()}`}
+              placeholder={`$${effectiveBalance.toLocaleString()} (default)`}
               value={equity}
               onChange={(e) => setEquity(e.target.value)}
               className="w-full px-3 py-2 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:border-emerald-500/50 focus:outline-none"
@@ -213,69 +260,152 @@ export default function RiskCalculator({
           </div>
         </div>
 
-        {/* Risk Per Trade */}
+        {/* Risk Per Trade (Toggle: % of Balance vs Fixed $) */}
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <Activity className="w-4 h-4 text-amber-400" />
-            Risk Per Trade
-          </h3>
-          <div className="flex flex-wrap gap-2">
-            {RISK_PRESETS.map((r) => (
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+              <Activity className="w-4 h-4 text-amber-400" />
+              Risk Per Trade
+            </h3>
+
+            {/* Toggle */}
+            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
               <button
-                key={r}
-                onClick={() => {
-                  setRiskPct(r);
-                  setCustomRisk("");
-                }}
-                className={`px-3 py-1.5 text-sm rounded-lg border transition-all ${
-                  customRisk === "" && riskPct === r
-                    ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
-                    : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
+                type="button"
+                onClick={() => setRiskMode("percentage")}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  riskMode === "percentage"
+                    ? "bg-amber-500/20 text-amber-400 font-semibold"
+                    : "text-slate-400 hover:text-slate-200"
                 }`}
               >
-                {r}%
+                % of Balance
               </button>
-            ))}
-            <input
-              type="number"
-              step="0.1"
-              placeholder="Custom %"
-              value={customRisk}
-              onChange={(e) => setCustomRisk(e.target.value)}
-              className="w-24 px-3 py-1.5 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:border-amber-500/50 focus:outline-none"
-            />
+              <button
+                type="button"
+                onClick={() => setRiskMode("fixed")}
+                className={`px-3 py-1 rounded-lg transition-all ${
+                  riskMode === "fixed"
+                    ? "bg-amber-500/20 text-amber-400 font-semibold"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                Fixed Dollar ($)
+              </button>
+            </div>
           </div>
-          <p className="text-xs text-slate-500">
-            Target risk: $
-            {(effectiveBalance * (effectiveRisk / 100)).toLocaleString(
-              undefined,
-              { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-            )}
-          </p>
+
+          {riskMode === "percentage" ? (
+            <div className="space-y-3">
+              <div className="flex flex-wrap gap-2">
+                {RISK_PRESETS.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => {
+                      setRiskPct(r);
+                      setCustomRiskPct("");
+                    }}
+                    className={`px-3.5 py-1.5 text-sm rounded-lg border font-medium transition-all ${
+                      customRiskPct === "" && riskPct === r
+                        ? "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                        : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
+                    }`}
+                  >
+                    {r}%
+                  </button>
+                ))}
+                <input
+                  type="number"
+                  step="0.05"
+                  placeholder="Custom %"
+                  value={customRiskPct}
+                  onChange={(e) => setCustomRiskPct(e.target.value)}
+                  className="w-24 px-3 py-1.5 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:border-amber-500/50 focus:outline-none"
+                />
+              </div>
+
+              {/* Slider */}
+              <div className="space-y-1 pt-1">
+                <input
+                  type="range"
+                  min="0.1"
+                  max="3.0"
+                  step="0.05"
+                  value={effectiveRiskPct}
+                  onChange={(e) => {
+                    setRiskPct(Number(e.target.value));
+                    setCustomRiskPct("");
+                  }}
+                  className="w-full accent-amber-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+                />
+                <div className="flex justify-between text-[11px] text-slate-500">
+                  <span>0.1% (Conservative)</span>
+                  <span className="text-amber-400 font-semibold">
+                    {effectiveRiskPct.toFixed(2)}% ($
+                    {(effectiveBalance * (effectiveRiskPct / 100)).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                    )
+                  </span>
+                  <span>3.0% (Aggressive)</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">$</span>
+                  <input
+                    type="number"
+                    step="50"
+                    value={fixedRiskUsd}
+                    onChange={(e) => setFixedRiskUsd(Math.max(0, Number(e.target.value)))}
+                    className="w-full pl-7 pr-3 py-2 text-sm bg-slate-800/50 border border-slate-700 rounded-lg text-slate-200 focus:border-amber-500/50 focus:outline-none"
+                  />
+                </div>
+                <span className="text-xs text-slate-400 whitespace-nowrap">
+                  = {result.effectiveRiskPercentage.toFixed(2)}% of balance
+                </span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max={effectiveBalance * 0.05}
+                step="50"
+                value={fixedRiskUsd}
+                onChange={(e) => setFixedRiskUsd(Number(e.target.value))}
+                className="w-full accent-amber-400 h-1.5 bg-slate-800 rounded-lg cursor-pointer"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Stop Loss */}
+        {/* Stop Loss Distance */}
         <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 space-y-4">
-          <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-rose-400" />
-            Stop-Loss Distance
-          </h3>
-          <div className="flex gap-2 mb-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+              <TrendingDown className="w-4 h-4 text-rose-400" />
+              Stop-Loss Distance &amp; Cost Buffer
+            </h3>
+            <span className="text-xs text-slate-500">
+              1 pip = ${pair.pipValuePerStandardLotUsd.toFixed(2)} / lot
+            </span>
+          </div>
+
+          <div className="flex gap-2">
             {SL_MODES.map((mode) => (
               <button
                 key={mode}
                 onClick={() => {
                   setSLMode(mode);
-                  // Reset to default pips when switching modes
                   if (mode === "Pips") setSLValue(pair.defaultStopLossPips);
                   else if (mode === "Points")
-                    setSLValue(
-                      pair.defaultStopLossPips * (pair.pipSize / pair.pointSize)
-                    );
-                  else
-                    setSLValue(pair.defaultStopLossPips * pair.pipSize);
+                    setSLValue(pair.defaultStopLossPips * (pair.pipSize / pair.pointSize));
+                  else setSLValue(pair.defaultStopLossPips * pair.pipSize);
                 }}
-                className={`px-3 py-1.5 text-xs rounded-lg border transition-all ${
+                className={`px-3 py-1.5 text-xs rounded-lg border font-medium transition-all ${
                   slMode === mode
                     ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
                     : "bg-slate-800/50 border-slate-700 text-slate-400 hover:border-slate-600"
@@ -285,10 +415,11 @@ export default function RiskCalculator({
               </button>
             ))}
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-slate-500 mb-1 block">
-                Distance ({slMode})
+                Stop-Loss ({slMode})
               </label>
               <input
                 type="number"
@@ -300,7 +431,7 @@ export default function RiskCalculator({
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">
-                Avg Spread + Buffer ({pair.symbol} pips)
+                Spread Buffer ({pair.symbol} pips)
               </label>
               <input
                 type="number"
@@ -315,29 +446,57 @@ export default function RiskCalculator({
 
         {/* ── Results Panel ── */}
         <div
-          className={`bg-slate-900/60 border rounded-2xl p-5 space-y-5 border-${statusColor}-500/30`}
+          className={`bg-slate-900/60 border rounded-2xl p-5 space-y-5 transition-colors ${
+            result.riskStatus === "DANGER"
+              ? "border-rose-500/40"
+              : result.riskStatus === "CAUTION"
+              ? "border-amber-500/40"
+              : "border-slate-800"
+          }`}
         >
-          {/* Risk Status Badge */}
-          <div className="flex items-center justify-between">
+          {/* Header & Status Badge */}
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <h3 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
               <Calculator className="w-4 h-4 text-sky-400" />
-              Position Sizing Results
+              Calculated Position Sizing
             </h3>
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full ${
-                result.riskStatus === "DANGER"
-                  ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                  : result.riskStatus === "CAUTION"
-                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                  : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-              }`}
-            >
-              <StatusIcon className="w-3.5 h-3.5" />
-              {result.riskStatus}
-            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleCopySetup}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:border-slate-600 transition-colors"
+                title="Copy Trade Setup to Clipboard"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Copy Setup</span>
+                  </>
+                )}
+              </button>
+
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full ${
+                  result.riskStatus === "DANGER"
+                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                    : result.riskStatus === "CAUTION"
+                    ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                    : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                }`}
+              >
+                <StatusIcon className="w-3.5 h-3.5" />
+                {result.riskStatus}
+              </span>
+            </div>
           </div>
 
-          {/* Lot Size Cards */}
+          {/* Lot Size Output Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <ResultCard
               label="Standard Lots"
@@ -354,16 +513,14 @@ export default function RiskCalculator({
             />
             <ResultCard
               label="Contract Units"
-              value={(
-                result.recommendedLots * pair.contractSize
-              ).toLocaleString()}
+              value={(result.recommendedLots * pair.contractSize).toLocaleString()}
             />
           </div>
 
           {/* Dollar Risk Breakdown */}
           <div className="grid grid-cols-3 gap-3">
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
-              <div className="text-xs text-slate-500">SL Risk</div>
+              <div className="text-xs text-slate-500">Stop-Loss Risk</div>
               <div className="text-lg font-bold text-slate-200">
                 ${result.actualStopLossUsd.toFixed(2)}
               </div>
@@ -376,9 +533,56 @@ export default function RiskCalculator({
             </div>
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800">
               <div className="text-xs text-slate-500">True Dollar Risk</div>
-              <div className={`text-lg font-bold text-${statusColor}-400`}>
+              <div
+                className={`text-lg font-bold ${
+                  result.riskStatus === "DANGER"
+                    ? "text-rose-400"
+                    : result.riskStatus === "CAUTION"
+                    ? "text-amber-400"
+                    : "text-emerald-400"
+                }`}
+              >
                 ${result.totalRiskWithCostsUsd.toFixed(2)}
               </div>
+            </div>
+          </div>
+
+          {/* Take Profit Target Projection (RR Target) */}
+          <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-400 flex items-center gap-1.5 font-medium">
+                <Target className="w-3.5 h-3.5 text-emerald-400" />
+                Target Risk-to-Reward (RR)
+              </span>
+              <div className="flex gap-1.5">
+                {RR_RATIOS.map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRiskReward(r)}
+                    className={`px-2 py-0.5 rounded text-[11px] border ${
+                      riskReward === r
+                        ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 font-semibold"
+                        : "border-slate-800 text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    1:{r}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex justify-between items-center text-xs pt-1">
+              <span className="text-slate-500">
+                Target TP Gain ({riskReward}R):{" "}
+                <strong className="text-emerald-400">
+                  +${projectedProfitUsd.toFixed(2)}
+                </strong>
+              </span>
+              {firm.profitTargetStep1Pct > 0 && (
+                <span className="text-slate-500">
+                  Covers {(projectedProfitUsd / targetPhase1Usd * 100).toFixed(1)}% of Phase 1
+                </span>
+              )}
             </div>
           </div>
 
@@ -386,10 +590,16 @@ export default function RiskCalculator({
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-slate-400">
-                Daily Drawdown Usage — This Trade
+                Daily Drawdown Usage (This Trade)
               </span>
               <span
-                className={`font-bold text-${statusColor}-400`}
+                className={`font-bold ${
+                  result.riskStatus === "DANGER"
+                    ? "text-rose-400"
+                    : result.riskStatus === "CAUTION"
+                    ? "text-amber-400"
+                    : "text-emerald-400"
+                }`}
               >
                 {Math.min(result.dailyDrawdownUsedPct, 100).toFixed(1)}%
               </span>
@@ -410,81 +620,83 @@ export default function RiskCalculator({
             </div>
             <div className="flex justify-between text-xs text-slate-500">
               <span>
-                Daily Cap: ${result.dailyLossCapUsd.toLocaleString()} |
-                Remaining: ${result.remainingDailyBufferUsd.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                Daily Cap: ${result.dailyLossCapUsd.toLocaleString()} | Remaining Buffer: ${result.remainingDailyBufferUsd.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </span>
               <span className="font-semibold text-sky-400">
-                {result.consecutiveLossesToDailyBreach} full losses to
-                breach
+                {result.consecutiveLossesToDailyBreach} losses to breach
               </span>
             </div>
           </div>
 
-          {/* Danger Alerts */}
-          {result.riskStatus === "DANGER" && (
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20">
-              <AlertOctagon className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-rose-400">
-                  DANGER — High Drawdown Consumption
-                </p>
-                <p className="text-xs text-rose-300/70 mt-1">
-                  This single trade consumes{" "}
-                  {result.dailyDrawdownUsedPct.toFixed(1)}% of your daily
-                  drawdown limit. Only{" "}
-                  {result.consecutiveLossesToDailyBreach} consecutive
-                  losses at this size will breach {firm.name}&apos;s{" "}
-                  {firm.dailyDrawdownPct}% daily loss rule. Consider
-                  reducing your lot size or widening your stop loss.
-                </p>
-              </div>
-            </div>
-          )}
+          {/* Amber Warning: > 30% */}
           {result.riskStatus === "CAUTION" && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-semibold text-amber-400">
-                  CAUTION — Elevated Risk
+                  Prop-Firm Caution: &gt;30% Daily Drawdown Consumed
                 </p>
-                <p className="text-xs text-amber-300/70 mt-1">
-                  This trade uses {result.dailyDrawdownUsedPct.toFixed(1)}%
-                  of your daily buffer. You have{" "}
-                  {result.consecutiveLossesToDailyBreach} full stops before
-                  hitting {firm.name}&apos;s daily limit. Stay disciplined
-                  and avoid revenge trading.
+                <p className="text-xs text-amber-300/80 mt-1 leading-relaxed">
+                  This single trade consumes{" "}
+                  <strong>{result.dailyDrawdownUsedPct.toFixed(1)}%</strong> of your remaining daily loss limit.{" "}
+                  <strong>{result.consecutiveLossesToDailyBreach} consecutive full losses</strong> at this position size will breach {firm.name}&apos;s {firm.dailyDrawdownPct}% daily limit.
                 </p>
               </div>
             </div>
           )}
 
-          {/* Firm Info Tooltip */}
+          {/* Red Alert: > 50% */}
+          {result.riskStatus === "DANGER" && (
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20">
+              <AlertOctagon className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-rose-400">
+                  Prop-Firm Danger: &gt;50% Daily Drawdown Consumed
+                </p>
+                <p className="text-xs text-rose-300/80 mt-1 leading-relaxed">
+                  CRITICAL: This trade commits{" "}
+                  <strong>{result.dailyDrawdownUsedPct.toFixed(1)}%</strong> of your daily drawdown limit. Just{" "}
+                  <strong>{result.consecutiveLossesToDailyBreach} consecutive loss</strong> will trigger an account breach on {firm.name}. Reduce your risk percentage or lot size immediately to preserve your funded status.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Firm Info Rule Snippet */}
           <div className="flex items-start gap-2 p-3 rounded-xl bg-slate-950/60 border border-slate-800/50">
             <Info className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
             <div className="text-xs text-slate-500 leading-relaxed">
-              <strong className="text-slate-400">{firm.name} Rules:</strong>{" "}
-              {firm.ruleNotes} Drawdown type:{" "}
-              <span className="text-slate-400">{firm.drawdownType}</span>.
-              Daily reset: <span className="text-slate-400">{firm.dailyResetRule}</span>.
+              <strong className="text-slate-400">{firm.name} Specifications:</strong>{" "}
+              {firm.ruleNotes} Daily reset: <span className="text-slate-400">{firm.dailyResetRule}</span>.
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Right: Ad Slot (sidebar) ── */}
+      {/* ── Right: Sidebar Ad Slot + Pair Specifications ── */}
       <aside className="hidden lg:block">
-        <div className="sticky top-6 space-y-4">
+        <div className="sticky top-20 space-y-4">
           <AdSlotInline slotId="sidebar-rectangle" className="min-h-[250px]" />
           <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800">
             <h4 className="text-xs font-semibold text-slate-400 mb-2">
-              {pair.symbol} Contract Specs
+              {pair.symbol} Contract Specifications
             </h4>
             <dl className="space-y-1.5 text-xs">
-              <SpecRow label="Contract Size" value={`${pair.contractSize.toLocaleString()} ${pair.unitLabel}`} />
+              <SpecRow label="Asset Class" value={pair.assetClass} />
+              <SpecRow
+                label="Contract Size"
+                value={`${pair.contractSize.toLocaleString()} ${pair.unitLabel}`}
+              />
               <SpecRow label="Pip Size" value={String(pair.pipSize)} />
-              <SpecRow label="Pip Value / Std Lot" value={`$${pair.pipValuePerStandardLotUsd.toFixed(2)}`} />
-              <SpecRow label="Typical Spread" value={`${pair.typicalSpreadPips} pips`} />
-              <SpecRow label="Commission" value={`$${firm.defaultCommissionPerLotUsd.toFixed(2)}/lot RT`} />
+              <SpecRow
+                label="Pip Value / Std Lot"
+                value={`$${pair.pipValuePerStandardLotUsd.toFixed(2)}`}
+              />
+              <SpecRow label="Avg Spread" value={`${pair.typicalSpreadPips} pips`} />
+              <SpecRow
+                label="Commission"
+                value={`$${firm.defaultCommissionPerLotUsd.toFixed(2)}/lot RT`}
+              />
             </dl>
           </div>
         </div>
@@ -493,7 +705,7 @@ export default function RiskCalculator({
   );
 }
 
-/* ── Sub-components ── */
+/* ── Helpers ── */
 
 function SelectField({
   label,
@@ -598,4 +810,3 @@ function AdSlotInline({
     </div>
   );
 }
-
