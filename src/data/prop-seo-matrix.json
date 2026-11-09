@@ -1,0 +1,122 @@
+{
+  "propFirms": [
+    {
+      "slug": "ftmo",
+      "name": "FTMO",
+      "programName": "FTMO 2-Step Challenge",
+      "dailyDrawdownPct": 5.0,
+      "maxDrawdownPct": 10.0,
+      "drawdownType": "Static (Equity & Balance)",
+      "dailyResetRule": "Midnight CE(S)T Server Time",
+      "profitTargetStep1Pct": 10.0,
+      "profitTargetStep2Pct": 5.0,
+      "accountSizes": [10000, 25000, 50000, 100000, 200000],
+      "defaultCommissionPerLotUsd": 3.0,
+      "ruleNotes": "FTMO calculates maximum daily loss of 5% based on the previous day's midnight balance, including floating losses, commissions, and swaps."
+    },
+    {
+      "slug": "fundednext",
+      "name": "FundedNext",
+      "programName": "Stellar 2-Step",
+      "dailyDrawdownPct": 5.0,
+      "maxDrawdownPct": 10.0,
+      "drawdownType": "Static (Balance-Based Daily Reset)",
+      "dailyResetRule": "Server Daily Rollover",
+      "profitTargetStep1Pct": 8.0,
+      "profitTargetStep2Pct": 5.0,
+      "accountSizes": [6000, 15000, 25000, 50000, 100000, 200000],
+      "defaultCommissionPerLotUsd": 3.0,
+      "ruleNotes": "Stellar 2-Step features an 8% Phase 1 target with a 5% daily loss limit and a 15% profit share from the challenge phase."
+    },
+    {
+      "slug": "the5ers",
+      "name": "The5ers",
+      "programName": "High Stakes 2-Step",
+      "dailyDrawdownPct": 5.0,
+      "maxDrawdownPct": 10.0,
+      "drawdownType": "Static Max / Higher-of-Equity-or-Balance Daily",
+      "dailyResetRule": "00:00 Server Time (Higher of Equity or Balance)",
+      "profitTargetStep1Pct": 8.0,
+      "profitTargetStep2Pct": 5.0,
+      "accountSizes": [5000, 20000, 60000, 100000],
+      "defaultCommissionPerLotUsd": 4.0,
+      "ruleNotes": "The5ers resets daily pause levels using the higher of your account balance or floating equity at midnight server time. Holding winning trades past rollover raises your daily loss floor."
+    },
+    {
+      "slug": "alpha-capital",
+      "name": "Alpha Capital Group",
+      "programName": "Alpha Pro Evaluation",
+      "dailyDrawdownPct": 4.0,
+      "maxDrawdownPct": 8.0,
+      "drawdownType": "Static Max / 4% Daily Cap",
+      "dailyResetRule": "00:00 Server Time",
+      "profitTargetStep1Pct": 8.0,
+      "profitTargetStep2Pct": 5.0,
+      "accountSizes": [10000, 25000, 50000, 100000, 200000],
+      "defaultCommissionPerLotUsd": 0.0,
+      "ruleNotes": "Alpha Capital Group charges zero commission on standard accounts but enforces a stricter 4% daily drawdown and 8% maximum drawdown ceiling."
+    }
+  ],
+  "instruments": [
+    {
+      "slug": "xauusd",
+      "symbol": "XAUUSD",
+      "displayName": "Gold vs US Dollar (XAU/USD)",
+      "assetClass": "Metals",
+      "contractSize": 100,
+      "unitLabel": "Troy Ounces",
+      "pipSize": 0.10,
+      "pointSize": 0.01,
+      "pipValuePerStandardLotUsd": 10.0,
+      "pointValuePerStandardLotUsd": 1.0,
+      "defaultStopLossPips": 50,
+      "typicalSpreadPips": 1.8,
+      "seoDescription": "In MT4/MT5 prop firm feeds, 1 standard lot of XAUUSD equals 100 troy ounces of gold. A $1.00 price move (10 standard pips at 0.10 or 100 points at 0.01) equals $100.00 per 1.00 lot."
+    },
+    {
+      "slug": "eurusd",
+      "symbol": "EURUSD",
+      "displayName": "Euro vs US Dollar (EUR/USD)",
+      "assetClass": "Forex Major",
+      "contractSize": 100000,
+      "unitLabel": "EUR Units",
+      "pipSize": 0.0001,
+      "pointSize": 0.00001,
+      "pipValuePerStandardLotUsd": 10.0,
+      "pointValuePerStandardLotUsd": 1.0,
+      "defaultStopLossPips": 20,
+      "typicalSpreadPips": 0.4,
+      "seoDescription": "One standard lot of EURUSD is 100,000 currency units. Every 1-pip movement (0.0001) equals $10.00 per standard lot, $1.00 per mini lot (0.10), and $0.10 per micro lot (0.01)."
+    },
+    {
+      "slug": "nas100",
+      "symbol": "NAS100",
+      "displayName": "Nasdaq 100 Index CFD (US100 / NAS100)",
+      "assetClass": "Indices",
+      "contractSize": 1,
+      "unitLabel": "Index Contract",
+      "pipSize": 1.0,
+      "pointSize": 0.1,
+      "pipValuePerStandardLotUsd": 1.0,
+      "pointValuePerStandardLotUsd": 0.1,
+      "defaultStopLossPips": 40,
+      "typicalSpreadPips": 1.2,
+      "seoDescription": "Most CFD prop firms define 1 standard lot of NAS100 (US100) with a contract size of 1 or 10. Always verify whether a 1-point index move equals $1.00 or $10.00 on your broker's MT5 specification tab."
+    },
+    {
+      "slug": "gbpjpy",
+      "symbol": "GBPJPY",
+      "displayName": "British Pound vs Japanese Yen (GBP/JPY)",
+      "assetClass": "Forex Cross",
+      "contractSize": 100000,
+      "unitLabel": "GBP Units",
+      "pipSize": 0.01,
+      "pointSize": 0.001,
+      "pipValuePerStandardLotUsd": 6.67,
+      "pointValuePerStandardLotUsd": 0.667,
+      "defaultStopLossPips": 30,
+      "typicalSpreadPips": 1.1,
+      "seoDescription": "Because GBPJPY is quoted in Japanese Yen, 1 pip (0.01) equals 1,000 JPY per standard lot. Converted to a USD prop account at ~150 USDJPY, 1 pip equals approximately $6.67 per lot."
+    }
+  ]
+}
